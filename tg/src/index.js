@@ -6,7 +6,7 @@ function pathRouter(data) {
         params: []
     }
     var tmp_0 = data.split(" ");
-    if (tmp_0.length > 0) {
+    if (tmp_0.length > 0 && data.length < 10) {
         var tmp_1 = tmp_0[0].split("/");
         if (tmp_1.length > 0) {
             ret.command = tmp_1[1]
@@ -16,7 +16,7 @@ function pathRouter(data) {
         }
     }else
     {
-        params.push(data)
+        ret.params.push(data)
     }
     return ret;
 }

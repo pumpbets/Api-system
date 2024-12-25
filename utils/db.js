@@ -50,7 +50,9 @@ async function finBets(page = 1, limit = 10) {
 
         // Query for data with pagination
         const ret = await db.collection(sBets)
-            .find({deadline: { $lt: currentTime } })
+            .find(
+                // {deadline: { $lt: Date.now() } }
+            )
             .skip(skip)
             .limit(limit)
             .toArray();

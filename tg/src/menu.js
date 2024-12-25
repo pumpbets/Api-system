@@ -183,7 +183,7 @@ ${lan.text.paid[2]} : \`${calllback.paymentDetails.hash}\``
 
 
 async function generate(bot, uid, req, data) {
-    const aiGen = await agent.generateBets(req.params[0]);
+    const aiGen = await agent.generateBets(req.params[0],uid);
     if(!aiGen)
     {
         return false;

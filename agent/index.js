@@ -2,7 +2,8 @@ const ai =require("openai");
 const fs = require('fs');
 const OpenAI =ai.OpenAI
 var fsp = require('fs/promises');
-
+const uuid = require('uuid');
+const utils = require("../utils/index")
 const client = new OpenAI({
   apiKey: process.env.OPENAIKEY,
   baseURL:  process.env.OPENAPIURL,
@@ -44,20 +45,25 @@ $final是对这个赌约进行自然语言总结。如：Bet $token will reach k
           },
       });
 
-      console.log(
-        stream.choices[0].message.content
-      )
+    //   console.log(
+    //     stream.choices[0].message.content
+    //   )
       return stream.choices[0].message.content;
 }
 
 
 const generateBets = async(msg,sign)=>{
-    const aiRet = {}
+    let aiRet = {}
     let final = {}
+    console.log(msg,sign)
     try{
+        const ag = await generate(msg);
+       
         const _aiRet = JSON.parse(
-            await generate(req.body.msg)
+            ag
         )
+        aiRet = _aiRet;
+        console.log("🍺AG :: ",ag,_aiRet)
         if(_aiRet && _aiRet?.token)
         {
             aiRet.deadline = Date.now()+(24*3600000)
@@ -67,14 +73,15 @@ const generateBets = async(msg,sign)=>{
                     "msg":msg,
                     "sign":sign
                 },
-                "token": aiRet?.token,
-                "types": aiRet?.types,
-                "bets": aiRet?.bets,
-                "deadline": aiRet?.deadline,
-                "words": aiRet?.words,
-                "final": aiRet?.final
+                "token": aiRet.token,
+                "types": aiRet.types,
+                "bets": aiRet.bets,
+                "deadline": aiRet.deadline,
+                "words": aiRet.words,
+                "final": aiRet.final
             }
             await utils.db.newBet(final);
+            return final;
         }else{
             return await generateBets(msg)
         }
