@@ -1,36 +1,36 @@
 var MongoClient = require('mongodb').MongoClient;
 require('dotenv').config()
     //DB name
-const mainDB = "steam_cd_key"
+const mainDB = "pumpbet"
 
 //Sheet name
-const sInvoice = "invoices";
-const sCDKeys = "cd_keys"
+const sBets = "bets"
+const sPayments = "payments"
 //DB struct
+const betStruct = {
+    "id":"",//New UUID
+    "originMessage":{
+        "msg":"",
+        "sign":""
+    },
+    "token": "$funproxy",
+    "types": "king_of_the_hill",
+    "bets": "true",
+    "deadline": "default",
+    "words": "You bet $funproxy will reach king of the hill",
+    "final": "Bet $funproxy will reach king of hill"
+}
 
-const steamCDKey = {
-    id:0,//Self incress,
-    status:0,//0 : unused , 1 : used
-    key:""//The final cdkey
-}
-const invoices = {
-    id: 0, //Invoice id generate by Tonspay
-    uid: 0, //Who to recive the msg
-    email: "", //The email to recive msg.
-    callback : {},
-    status:0,//invoices status,
-    keyId:0,//Steam cd key id .
-    createTime:0
-}
+
 
 /**
  * Invoice
  */
 
-async function getInvoiceById(data) {
+async function finBetById(data) {
     const pool = await MongoClient.connect(process.env.SQL_HOST)
     var db = pool.db(mainDB);
-    var ret = await db.collection(sInvoice).find({
+    var ret = await db.collection(sBets).find({
         id: data
     }).project({}).toArray();
     await pool.close();
@@ -40,104 +40,45 @@ async function getInvoiceById(data) {
     return false;
 }
 
-async function newInvoice(invoice,uid,email) {
-    const keyId = await getAKeyUnUsed();
-    if(keyId)
-    {
-        const pool = await MongoClient.connect(process.env.SQL_HOST)
-        var db = pool.db(mainDB);
-        var ret = await db.collection(sInvoice).insertOne(
-            {
-                id: invoice, //Invoice id generate by Tonspay
-                uid: uid, //Who to recive the msg
-                email:email, //The email to recive msg.
-                callback : {},
-                status:0,//invoices status,
-                keyId:keyId.id,//Steam cd key id .
-                createTime:Date.now(),//Request time
-            }
-        );
+async function finBets(page = 1, limit = 10) {
+    const pool = await MongoClient.connect(process.env.SQL_HOST, { useUnifiedTopology: true });
+    try {
+        const db = pool.db(mainDB);
+
+        // Calculate the number of documents to skip for pagination
+        const skip = (page - 1) * limit;
+
+        // Query for data with pagination
+        const ret = await db.collection(sBets)
+            .find({deadline: { $lt: currentTime } })
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+
         await pool.close();
-        return ret;
+
+        // Return the results
+        return ret.length > 0 ? ret : false;
+    } catch (error) {
+        console.error("Error fetching bets:", error);
+        await pool.close();
+        throw error;
     }
-    return false;
-}
-
-async function payInvoice(id, callback) {
-    const pool = await MongoClient.connect(process.env.SQL_HOST)
-    var db = pool.db(mainDB);
-    await db.collection(sInvoice).updateMany({
-        id: id
-    }, {
-        "$set": {
-            status: 1,
-            callback : callback
-        }
-    });
-    const invoice = await getInvoiceById(id);
-    await db.collection(sCDKeys).updateMany({
-        id: invoice.keyId
-    }, {
-        "$set": {
-            status: 1,
-        }
-    });
-    await pool.close();
-    return await getKeysById(invoice.keyId);
 }
 
 
-/**
- * Keys
- */
-
-async function getKeysById(data) {
+async function newBet(bet) {
     const pool = await MongoClient.connect(process.env.SQL_HOST)
     var db = pool.db(mainDB);
-    var ret = await db.collection(sCDKeys).find({
-        id: data
-    }).project({}).toArray();
-    await pool.close();
-    if (ret.length > 0) {
-        return ret[0]
-    }
-    return false;
-}
-
-async function getAKeyUnUsed() {
-    const pool = await MongoClient.connect(process.env.SQL_HOST)
-    var db = pool.db(mainDB);
-    var ret = await db.collection(sCDKeys).find({
-        status: 0
-    }).project({}).toArray();
-    await pool.close();
-    if (ret.length > 0) {
-        return ret[0]
-    }
-    return false;
-}
-
-async function newKeys(key) {
-    const pool = await MongoClient.connect(process.env.SQL_HOST)
-    var db = pool.db(mainDB);
-
-    var id = (await db.collection(sCDKeys).count());
-    var ret = await db.collection(sCDKeys).insertOne(
-        {
-            id:id,//Self incress,
-            status:0,//0 : unused , 1 : used
-            key:key//The final cdkey
-        }
+    var ret = await db.collection(sBets).insertOne(
+        bet
     );
     await pool.close();
     return ret;
 }
 
 module.exports = {
-    getInvoiceById,
-    newInvoice,
-    payInvoice,
-    getKeysById,
-    getAKeyUnUsed,
-    newKeys
+    finBetById,
+    finBets,
+    newBet
 }

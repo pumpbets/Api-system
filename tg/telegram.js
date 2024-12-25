@@ -41,26 +41,8 @@ async function router(data) {
         case "start":
             await src.menu.main(bot, uid, req, data);
             break;
-        case "menu":
-            await src.menu.main(bot, uid, req, data);
-            break;
-        case "buy_ton":
-            await src.menu.generateInvoices(bot, uid, req, data,0);
-            break;
-        case "buy_sol":
-            await src.menu.generateInvoices(bot, uid, req, data,1);
-            break;
-        case "buy_eth":
-            await src.menu.generateInvoices(bot, uid, req, data,2);
-            break;
-        case "buy_bsc":
-            await src.menu.generateInvoices(bot, uid, req, data,4);
-            break;
         default:
-            req.params = [
-                data.text
-            ]
-            await src.menu.main(bot, uid, req, data);
+            await src.menu.generate(bot, uid, req, data);
             break;
     }
 }
@@ -72,21 +54,6 @@ async function callBackRouter(data, action, opts) {
         case "menu":
             await src.menu.main(bot, uid, req, data);
             break;
-        case "buy":
-            await src.menu.selectPaymentMethod(bot, uid, req, data);
-            break;
-        case "buy_ton":
-            await src.menu.generateInvoices(bot, uid, req, data,0);
-            break;
-        case "buy_sol":
-            await src.menu.generateInvoices(bot, uid, req, data,1);
-            break;
-        case "buy_eth":
-            await src.menu.generateInvoices(bot, uid, req, data,2);
-            break;
-        case "buy_bsc":
-            await src.menu.generateInvoices(bot, uid, req, data,5);
-            break;
         case "empty":
             return null;
         case "close":
@@ -97,7 +64,7 @@ async function callBackRouter(data, action, opts) {
     bot.deleteMessage(opts.chat_id, opts.message_id);
 }
 
-async function paymentCallback(sign)
+async function sideBet(sign)
 {
    await src.menu.sendKey(bot,sign)
 }
@@ -113,5 +80,5 @@ function getBot() {
 module.exports = {
     init,
     getBot,
-    paymentCallback
+    sideBet
 }

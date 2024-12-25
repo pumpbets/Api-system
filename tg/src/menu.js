@@ -1,6 +1,7 @@
 const lan = require("./text")
 const utils = require("../../utils/index")
 const config = require("../../config.json");
+const agent = require("../../agent/index")
 require('dotenv').config()
 
 async function main(bot, uid, req, data) {
@@ -179,9 +180,39 @@ ${lan.text.paid[2]} : \`${calllback.paymentDetails.hash}\``
     }
 
 }
+
+
+async function generate(bot, uid, req, data) {
+    const aiGen = await agent.generateBets(req.params[0]);
+    if(!aiGen)
+    {
+        return false;
+    }
+    return await bot.sendMessage(uid, `${aiGen.words}
+
+[Visit Here](https://pumpbets.fun/?id=${aiGen.id})
+
+        `, {
+        parse_mode: 'MarkDown',
+        disable_web_page_preview: "true",
+        reply_markup: JSON.stringify({
+            inline_keyboard: [
+                [{
+                    "text": 'Yes !',
+                    "url": "https://t.me/tonspay_bot"
+                }],
+                [{
+                    "text": 'No !',
+                    "url": "https://t.me/tonspay_bot"
+                }],
+            ]
+        })
+    });
+}
 module.exports = {
     main,
     selectPaymentMethod,
     generateInvoices,
-    sendKey
+    sendKey,
+    generate
 }

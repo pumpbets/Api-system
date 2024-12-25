@@ -14,6 +14,9 @@ function pathRouter(data) {
         for (var i = 1; i < tmp_0.length; i++) {
             ret.params.push(tmp_0[i])
         }
+    }else
+    {
+        params.push(data)
     }
     return ret;
 }

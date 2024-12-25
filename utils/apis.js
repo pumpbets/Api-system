@@ -23,20 +23,6 @@ async function anyRequest(url)
       return req.doRequest(options);
 }
 
-async function newInvoices(body)
-{
-    var options = {
-        'method': 'POST',
-        'url': router.newInvoices,
-        'headers': {
-          'Content-Type': 'application/json',
-          'token':process.env.MERCHANT_API_KEY
-        },
-        'body':JSON.stringify(body)
-      };
-      return req.doRequest(options);
-}
-
 async function getPrice(id)
 {
     var options = {
@@ -70,7 +56,6 @@ async function getTokensPrice()
 }
 module.exports = {
     anyRequest,
-    newInvoices,
     getPrice,
     getTokensPrice,
     getTokenPrice
