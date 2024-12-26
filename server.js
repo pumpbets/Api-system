@@ -64,8 +64,8 @@ app.get('/redirect', (req, res) => {
 
     const userAgent = req.get('User-Agent');
     const origin = req.get('Origin');
-    console.log(userAgent);
-    console.log(origin);
+    // console.log(userAgent);
+    // console.log(origin);
     if(origin == "https://dial.to")
         {
             console.log("This is a blinks request")
@@ -75,7 +75,14 @@ app.get('/redirect', (req, res) => {
         console.log('Request is from Twitter preview');
         return twitterResponse(req,res)
       }
-      return blinks.getBet(req,res)
+     if (userAgent && userAgent.includes('Telegram')) {
+        console.log('Request is from Telegram preview');
+        return telegramResponse(req,res)
+        } 
+      
+      res.redirect(
+        "https://pumpbets.fun/?id="+req.query.id
+      )
   });
   
 
@@ -107,13 +114,36 @@ const twitterResponse = (req,res) => {
         
       </head>
       <body>
-        <h1>API Response Preview</h1>
-        <p>Check how this API responds in Twitter preview.</p>
+        <h1>Pumpbets</h1>
+        <p>First AI-Agent driven solana memecoin bets protocol</p>
       </body>
       </html>
     `);
 }
 
+const telegramResponse = (req,res) => {
+    const imageUrl = 'https://pumpbets.fun/logo.png';
+    const title = 'Pumpbets';
+    const description = 'First AI-Agent driven solana memecoin bets protocol';
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <!-- Open Graph Meta Tags -->
+        <meta property="og:title" content="${title}" />
+        <meta property="og:description" content="${description}"/>
+        <meta property="og:image" content="${imageUrl}" />
+        <meta property="og:url" content="http://pumpbets.fun/api" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </head>
+      <body>
+        <h1>Pumpbets</h1>
+        <p>First AI-Agent driven solana memecoin bets protocol</p>
+      </body>
+      </html>
+    `);
+}
 const sendErr = (res,err) =>{
     return res.status(500).send({
         "code": 500,

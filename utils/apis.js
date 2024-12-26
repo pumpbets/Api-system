@@ -70,7 +70,7 @@ async function findPumpBySearch(search) {
   };
 
   try {
-    const response = await fetch(`https://frontend-api-v2.pump.fun/coins?offset=0&sort=market_cap&order=DESC&includeNsfw=false&searchTerm=${search}&limit=${1}`, requestOptions);
+    const response = await fetch(`https://frontend-api-v2.pump.fun/coins?offset=0&sort=market_cap&order=DESC&&searchTerm=${search}&limit=${1}`, requestOptions);
     return await response.json();
     
   } catch (error) {

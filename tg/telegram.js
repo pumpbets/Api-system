@@ -38,9 +38,6 @@ async function router(data) {
     const uid = data.chat.id;
     const req = src.pathRouter(data.text);
     switch (req.command) {
-        case "start":
-            await src.menu.main(bot, uid, req, data);
-            break;
         default:
             await src.menu.generate(bot, uid, req, data);
             break;
@@ -51,9 +48,6 @@ async function callBackRouter(data, action, opts) {
     const uid = data.chat.id;
     const req = src.pathRouter(action);
     switch (req.command) {
-        case "menu":
-            await src.menu.main(bot, uid, req, data);
-            break;
         case "empty":
             return null;
         case "close":
