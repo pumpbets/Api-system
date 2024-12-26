@@ -32,7 +32,9 @@ async function finBetById(data) {
     var db = pool.db(mainDB);
     var ret = await db.collection(sBets).find({
         id: data
-    }).project({}).toArray();
+    }).project({
+        _id:0,
+    }).toArray();
     await pool.close();
     if (ret.length > 0) {
         return ret[0]
@@ -55,7 +57,7 @@ async function finBets(page = 1, limit = 10) {
             )
             .skip(skip)
             .limit(limit)
-            .toArray();
+            .project({ _id:0,}).toArray();
 
         await pool.close();
 

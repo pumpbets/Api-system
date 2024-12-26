@@ -4,6 +4,7 @@ const OpenAI =ai.OpenAI
 var fsp = require('fs/promises');
 const uuid = require('uuid');
 const utils = require("../utils/index")
+const token = require("./token");
 const client = new OpenAI({
   apiKey: process.env.OPENAIKEY,
   baseURL:  process.env.OPENAPIURL,
@@ -16,6 +17,7 @@ async function generate(msg) {
                 role: "user",
                 content: `现在是${Date.now()}，请将以下信息重新格式成json形式，返回给我。要求格式：{
 "token":"",
+"address":"",
 “types:"",
 "bets":"",
 "deadline":"",
@@ -29,6 +31,7 @@ async function generate(msg) {
 4. 代币能否翻n倍
 5. 代币价格会走高或走低
 $token是用户提及的代币，需是Solana地址或一串string，
+$address是用户所提及的代币地址，如果用户未提及则留空。
 $types是用户要赌的赌约类型，支持以下类型：
 marketcap，king_of_the_hill,price_to_x,price_lever_to_n,price_up_or_down
 $bets是用户要赌的内容，根据不同赌约类型分别是：
@@ -67,13 +70,21 @@ const generateBets = async(msg,sign)=>{
         if(_aiRet && _aiRet?.token)
         {
             aiRet.deadline = Date.now()+(24*3600000)
+            const tk = await token.findToken(aiRet.token,aiRet.address)
+            console.log(tk);
+            if(!tk)
+            {
+                return false;
+            }
             final =  {
                 "id":uuid.v4(),//New UUID
                 "originMessage":{
                     "msg":msg,
                     "sign":sign
                 },
-                "token": aiRet.token,
+                "token": tk.name,
+                "address": tk.address,
+                "tokenInfo":tk,
                 "types": aiRet.types,
                 "bets": aiRet.bets,
                 "deadline": aiRet.deadline,
