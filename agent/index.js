@@ -67,7 +67,7 @@ const generateBets = async(msg,sign)=>{
         )
         aiRet = _aiRet;
         console.log("🍺AG :: ",ag,_aiRet)
-        if(_aiRet && _aiRet?.token)
+        if(_aiRet && _aiRet?.token &&_aiRet?.types)
         {
             aiRet.deadline = Date.now()+(24*3600000)
             const tk = await token.findToken(aiRet.token,aiRet.address)
@@ -94,7 +94,8 @@ const generateBets = async(msg,sign)=>{
             await utils.db.newBet(final);
             return final;
         }else{
-            return await generateBets(msg)
+            return false;
+            // return await generateBets(msg)
         }
     }catch(e)
     {

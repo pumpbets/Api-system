@@ -7,12 +7,14 @@ const tg= require("./tg/telegram")
 var bot;
 var app = express();
 var bodyParser = require('body-parser');
+const cors = require('cors'); 
 
 const agent = require("./agent/index")
 
 const uuid = require('uuid');
 const utils = require("./utils/index")
 
+app.use(cors()); 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
@@ -49,11 +51,11 @@ app.get('/find', async function(req, res) {
         return sendErr(res,e)
     }
 })
-app.post('/generate', async function(req, res) {
+app.post('/new', async function(req, res) {
     var ret = await agent.generateBets(req.body.msg,req.body.sign)
     res.status(200).send({
         "code": 200,
-        "data": JSON.parse(ret)
+        "data": ret
     })
 })
 

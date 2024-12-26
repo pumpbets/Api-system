@@ -48,7 +48,7 @@ async function finBets(page = 1, limit = 10) {
         const db = pool.db(mainDB);
 
         // Calculate the number of documents to skip for pagination
-        const skip = (page - 1) * limit;
+        const skip = (Number(page) - 1) * Number(limit);
 
         // Query for data with pagination
         const ret = await db.collection(sBets)
@@ -56,7 +56,7 @@ async function finBets(page = 1, limit = 10) {
                 // {deadline: { $lt: Date.now() } }
             )
             .skip(skip)
-            .limit(limit)
+            .limit(Number(limit))
             .project({ _id:0,}).toArray();
 
         await pool.close();
